@@ -13,16 +13,16 @@ Projet d'Intelligence Artificielle implémentant le jeu de Tic-Tac-Toe avec une 
 │   ├── joueur_humain.py    → Joueur humain
 │   ├── joueur_ia.py        → IA Minimax (imbattable)
 │   └── joueur_aleatoire.py → Joueur aléatoire
-├── simulation.py            → 🔬 Comparer les stratégies
-├── jeu_console.py           → 🎮 Interface console (avec menu)
-├── jeu_interface.py         → 🖼️ Interface graphique (avec menu)
+├── simulation.py            →  Comparer les stratégies
+├── jeu_console.py           →  Interface console (avec menu)
+├── jeu_interface.py         →  Interface graphique (avec menu)
 ├── ia_vs_aleatoire.py       → Simulation IA vs Aléatoire (ancien)
 ├── joueurs.py               → Ancien module (rétrocompatibilité)
 ├── requirements.txt         → Dépendances Python
 └── README.md               → Documentation
 ```
 
-## 🚀 Installation
+##  Installation
 
 ### Prérequis
 - Python 3.8 ou supérieur
@@ -30,7 +30,7 @@ Projet d'Intelligence Artificielle implémentant le jeu de Tic-Tac-Toe avec une 
 
 **Aucune dépendance externe requise** - Tout fonctionne avec la bibliothèque standard Python !
 
-## 🎯 Utilisation
+##  Utilisation
 
 ### 1️⃣ Mode Console
 
@@ -41,10 +41,10 @@ python jeu_console.py
 ```
 
 **Fonctionnalités :**
-- ⭐ **Menu de sélection** : Choisir le type de chaque joueur (X et O)
-- 👤 **Humain** : Jouez manuellement
-- 🤖 **IA Minimax** : Imbattable, avec statistiques des nœuds explorés
-- 🎲 **Aléatoire** : Joue des coups aléatoires
+-  **Menu de sélection** : Choisir le type de chaque joueur (X et O)
+-  **Humain** : Jouez manuellement
+-  **IA Minimax** : Imbattable, avec statistiques des nœuds explorés
+-  **Aléatoire** : Joue des coups aléatoires
 - Affichage du plateau dans le terminal
 - Saisie des coups en format "ligne colonne" (ex: `1 2`)
 
@@ -54,7 +54,7 @@ python jeu_console.py
 - IA vs Aléatoire (IA imbattable)
 - Aléatoire vs Aléatoire
 
-### 2️⃣ Mode Interface Graphique (Tkinter)
+### 2️ Mode Interface Graphique (Tkinter)
 
 Interface graphique moderne avec menu de sélection.
 
@@ -63,7 +63,7 @@ python jeu_interface.py
 ```
 
 **Fonctionnalités :**
-- ⭐ **Dialogue de sélection** : Fenêtre élégante pour choisir les joueurs
+-  **Dialogue de sélection** : Fenêtre élégante pour choisir les joueurs
 - Interface graphique intuitive
 - Clic sur les cases pour jouer (joueurs humains)
 - Jeu automatique pour IA et joueurs aléatoires
@@ -71,7 +71,7 @@ python jeu_interface.py
 - Bouton "Nouvelle Partie" avec nouvelle sélection
 - Design moderne et responsive
 
-### 3️⃣ Simulation & Comparaison 🔬
+### 3️ Simulation & Comparaison 
 
 Comparez les performances des différents joueurs !
 
@@ -91,16 +91,16 @@ python simulation.py
 - IA (qui commence) vs Aléatoire → ~98% victoires IA, 2% nuls
 - Aléatoire vs IA (IA commence en 2ème) → ~78% victoires IA, 22% nuls
 
-## 🧠 Algorithme Minimax
+##  Algorithme Minimax
 
 ### Principe
 
 L'algorithme Minimax explore récursivement tous les coups possibles pour trouver le meilleur coup.
 
 **Caractéristiques :**
-- ✅ **Minimax avec élagage Alpha-Beta** : optimise les performances
-- ✅ **IA imbattable** : l'IA ne peut jamais perdre (au mieux match nul)
-- ✅ **Évaluation de profondeur** : favorise les victoires rapides
+-  **Minimax avec élagage Alpha-Beta** : optimise les performances
+-  **IA imbattable** : l'IA ne peut jamais perdre (au mieux match nul)
+-  **Évaluation de profondeur** : favorise les victoires rapides
 
 ### Fonction d'évaluation
 
@@ -110,7 +110,7 @@ L'algorithme Minimax explore récursivement tous les coups possibles pour trouve
 0            → Match nul
 ```
 
-## 🎓 Concepts d'IA Utilisés
+##  Concepts d'IA Utilisés
 
 ### 1. Minimax
 Algorithme de recherche adversaire qui explore l'arbre de jeu complet.
@@ -124,45 +124,22 @@ Optimisation du Minimax qui évite d'explorer des branches inutiles.
 ### 4. Recherche en profondeur
 Explore récursivement tous les coups possibles jusqu'à la fin de la partie.
 
-## 🛠️ Technologies Utilisées
+##  Technologies Utilisées
 
 - **Python 3** : Langage principal
 - **Tkinter** : Interface graphique native Python
 - **Algorithme Minimax** : Intelligence artificielle
 
-## 📊 Complexité
+##  Complexité
 
 - **Espace d'états** : 3^9 = 19,683 positions possibles (max)
 - **Positions uniques** : ~5,478 (en tenant compte des symétries)
 - **Complexité temporelle** : O(b^d) où b=9 (branching factor) et d≈9 (profondeur max)
 - **Avec Alpha-Beta** : Réduit significativement le nombre de nœuds explorés
 
-## 🎮 Stratégie de l'IA
+##  Stratégie de l'IA
 
 1. **Premier coup** : Souvent le centre ou un coin
 2. **Bloquer l'adversaire** : Empêche les victoires imminentes
 3. **Créer des fourchettes** : Crée des situations gagnantes multiples
 4. **Victoire rapide** : Préfère gagner en moins de coups
-
-## 📝 Notes pour le Cours d'IA
-
-Ce projet démontre :
-- ✅ Implémentation d'un algorithme de recherche adversaire
-- ✅ Optimisation avec élagage Alpha-Beta
-- ✅ Séparation de la logique IA et de l'interface
-- ✅ Réutilisabilité du code (même IA pour 2 interfaces)
-- ✅ Architecture modulaire avec types de joueurs interchangeables
-
-## 🤝 Contribution
-
-Ce projet est un exemple pédagogique pour un cours d'IA.
-
-## 📄 Licence
-
-Projet éducatif - Libre d'utilisation pour l'apprentissage.
-
----
-
-**Auteur** : Projet de cours d'Intelligence Artificielle  
-**Date** : Novembre 2025  
-**Sujet** : Algorithme Minimax appliqué au Tic-Tac-Toe
