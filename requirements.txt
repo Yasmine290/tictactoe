@@ -1,2 +1,0 @@
-# Aucune dépendance externe requise
-# Tkinter est inclus avec Python

@@ -1,25 +1,25 @@
-# 🎮 Tic-Tac-Toe avec IA (Algorithme Minimax)
+#  Tic-Tac-Toe avec IA (Algorithme Minimax)
 
 Projet d'Intelligence Artificielle implémentant le jeu de Tic-Tac-Toe avec une IA imbattable utilisant l'algorithme **Minimax avec élagage Alpha-Beta**.
 
-## 📁 Structure du Projet
+##  Structure du Projet
 
 ```
 /tictactoe
-├── morpion_base.py          → Logique du jeu + Algorithme Minimax
-├── joueurs/                 → 📁 Package des joueurs
-│   ├── __init__.py         → Exports des classes
-│   ├── joueur_base.py      → Classe abstraite de base
-│   ├── joueur_humain.py    → Joueur humain
-│   ├── joueur_ia.py        → IA Minimax (imbattable)
-│   └── joueur_aleatoire.py → Joueur aléatoire
-├── simulation.py            →  Comparer les stratégies
-├── jeu_console.py           →  Interface console (avec menu)
-├── jeu_interface.py         →  Interface graphique (avec menu)
-├── ia_vs_aleatoire.py       → Simulation IA vs Aléatoire (ancien)
-├── joueurs.py               → Ancien module (rétrocompatibilité)
-├── requirements.txt         → Dépendances Python
-└── README.md               → Documentation
+ morpion_base.py          → Logique du jeu + Algorithme Minimax
+ joueurs/                 →  Package des joueurs
+    __init__.py         → Exports des classes
+    joueur_base.py      → Classe abstraite de base
+    joueur_humain.py    → Joueur humain
+    joueur_ia.py        → IA Minimax (imbattable)
+    joueur_aleatoire.py → Joueur aléatoire
+ simulation.py            →  Comparer les stratégies
+ jeu_console.py           →  Interface console (avec menu)
+ jeu_interface.py         →  Interface graphique (avec menu)
+ ia_vs_aleatoire.py       → Simulation IA vs Aléatoire (ancien)
+ joueurs.py               → Ancien module (rétrocompatibilité)
+ requirements.txt         → Dépendances Python
+ README.md               → Documentation
 ```
 
 ##  Installation
@@ -32,7 +32,7 @@ Projet d'Intelligence Artificielle implémentant le jeu de Tic-Tac-Toe avec une 
 
 ##  Utilisation
 
-### 1️⃣ Mode Console
+### 1⃣ Mode Console
 
 Interface textuelle avec menu de sélection des joueurs.
 
@@ -54,7 +54,7 @@ python jeu_console.py
 - IA vs Aléatoire (IA imbattable)
 - Aléatoire vs Aléatoire
 
-### 2️ Mode Interface Graphique (Tkinter)
+### 2 Mode Interface Graphique (Tkinter)
 
 Interface graphique moderne avec menu de sélection.
 
@@ -71,7 +71,7 @@ python jeu_interface.py
 - Bouton "Nouvelle Partie" avec nouvelle sélection
 - Design moderne et responsive
 
-### 3️ Simulation & Comparaison 
+### 3 Simulation & Comparaison 
 
 Comparez les performances des différents joueurs !
 
@@ -125,20 +125,17 @@ Optimisation du Minimax qui évite d'explorer des branches inutiles.
 Explore récursivement tous les coups possibles jusqu'à la fin de la partie.
 
 ##  Technologies Utilisées
-
 - **Python 3** : Langage principal
 - **Tkinter** : Interface graphique native Python
 - **Algorithme Minimax** : Intelligence artificielle
 
 ##  Complexité
-
 - **Espace d'états** : 3^9 = 19,683 positions possibles (max)
 - **Positions uniques** : ~5,478 (en tenant compte des symétries)
 - **Complexité temporelle** : O(b^d) où b=9 (branching factor) et d≈9 (profondeur max)
 - **Avec Alpha-Beta** : Réduit significativement le nombre de nœuds explorés
 
 ##  Stratégie de l'IA
-
 1. **Premier coup** : Souvent le centre ou un coin
 2. **Bloquer l'adversaire** : Empêche les victoires imminentes
 3. **Créer des fourchettes** : Crée des situations gagnantes multiples

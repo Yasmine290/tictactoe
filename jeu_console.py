@@ -4,7 +4,7 @@ Utilise le module morpion_base pour la logique du jeu et le Minimax.
 """
 
 from morpion_base import TicTacToe
-from joueurs import JoueurHumain, JoueurIA, JoueurAleatoire, JoueurIACache
+from joueurs import JoueurHumain, JoueurIA, JoueurAleatoire, JoueurIACache, JoueurQLearning, JoueurReseauNeurones
 
 
 def choisir_type_joueur(symbole):
@@ -22,12 +22,14 @@ def choisir_type_joueur(symbole):
     print(f"└─────────────────────────────────────┘")
     print("1. Humain")
     print("2. IA Minimax (imbattable)")
-    print("3. IA Cache (Minimax + apprentissage)")
-    print("4. Aléatoire")
+    print("3. IA Cache (Minimax + mémorisation)")
+    print("4. IA Q-Learning (apprentissage par renforcement)")
+    print("5. IA Réseau de Neurones (deep learning)")
+    print("6. Aléatoire")
     
     while True:
         try:
-            choix = input(f"\nVotre choix pour {symbole} (1-4): ").strip()
+            choix = input(f"\nVotre choix pour {symbole} (1-6): ").strip()
             
             if choix == "1":
                 return JoueurHumain(symbole, f"Joueur {symbole}")
@@ -36,9 +38,56 @@ def choisir_type_joueur(symbole):
             elif choix == "3":
                 return JoueurIACache(symbole, f"IA Cache {symbole}")
             elif choix == "4":
+                # Demander si on veut entraîner ou utiliser un agent existant
+                print("\n  Mode entrainement : L'agent apprend en jouant")
+                print("     Mode jeu : L'agent utilise ce qu'il a appris")
+                mode = input("\nMode: [e]ntraînement ou [j]eu? (e/j): ").strip().lower()
+                mode_entrainement = (mode == 'e')
+                
+                # Demander le niveau de variété
+                print("\n  Variete: [n]ormale (10%) ou [h]aute (35% - contre humain)?")
+                variete = input("Choix (n/h): ").strip().lower()
+                epsilon = 0.35 if variete == 'h' else 0.1
+                
+                fichier = "qlearning_table.pkl"
+                agent = JoueurQLearning(symbole, mode_entrainement=mode_entrainement,
+                                       epsilon=epsilon, fichier_sauvegarde=fichier)
+                if mode_entrainement:
+                    print(f"\n  Mode ENTRAINEMENT active (epsilon={agent.epsilon})")
+                    print(f"    L'agent va apprendre de chaque partie jouee")
+                    if epsilon > 0.2:
+                        print(f"    Mode HAUTE VARIETE (impredictible contre humain)")
+                else:
+                    print(f"\n  Mode JEU active (exploitation pure)")
+                    print(f"    L'agent utilise sa Table Q ({len(agent.table_q)} etats)")
+                return agent
+            elif choix == "5":
+                print("\n  Mode entrainement : Le reseau apprend en jouant")
+                print("     Mode jeu : Le reseau utilise ce qu'il a appris")
+                mode = input("\nMode: [e]ntrainement ou [j]eu? (e/j): ").strip().lower()
+                mode_entrainement = (mode == 'e')
+                
+                # Demander le niveau de variété
+                print("\n  Variete: [n]ormale (20%) ou [h]aute (40% - contre humain)?")
+                variete = input("Choix (n/h): ").strip().lower()
+                epsilon = 0.4 if variete == 'h' else 0.2
+                
+                agent = JoueurReseauNeurones(symbole, f"Reseau {symbole}", 
+                                            mode_entrainement=mode_entrainement,
+                                            epsilon=epsilon)
+                if mode_entrainement:
+                    print(f"\n  Mode ENTRAINEMENT active (epsilon={agent.epsilon})")
+                    print(f"    Le reseau va apprendre de chaque partie jouee")
+                    if epsilon > 0.3:
+                        print(f"    Mode HAUTE VARIETE (impredictible contre humain)")
+                else:
+                    print(f"\n  Mode JEU active (exploitation)")
+                    print(f"    Le reseau utilise ses poids entraines")
+                return agent
+            elif choix == "6":
                 return JoueurAleatoire(symbole, f"Aléatoire {symbole}")
             else:
-                print("Choix invalide! Utilisez 1, 2, 3 ou 4.")
+                print("Choix invalide! Utilisez 1, 2, 3, 4, 5 ou 6.")
         except KeyboardInterrupt:
             print("\n\nAu revoir!")
             exit(0)
@@ -125,7 +174,13 @@ def play_game():
         game.jouer_coup(row, col, joueur_actuel.symbole)
         
         # Afficher les statistiques après le coup
-        if isinstance(joueur_actuel, JoueurIA):
+        if isinstance(joueur_actuel, JoueurQLearning):
+            stats = joueur_actuel.obtenir_statistiques()
+            mode = "Entraînement" if joueur_actuel.mode_entrainement else "Jeu"
+            print(f"  → Q-Learning [{mode}]: {stats['taille_table_q']} états connus, "
+                  f"ε={joueur_actuel.epsilon:.2f}, "
+                  f"{joueur_actuel.temps_reflexion*1000:.3f}ms")
+        elif isinstance(joueur_actuel, JoueurIA):
             print(f"  → IA: {joueur_actuel.noeuds_explores} nœuds, "
                   f"{joueur_actuel.elagages} élagages, "
                   f"{joueur_actuel.temps_reflexion*1000:.3f}ms")
@@ -152,6 +207,52 @@ def play_game():
         print(f"STATS: {joueur_x.nom} a exploré {joueur_x.noeuds_explores} nœuds")
     if isinstance(joueur_o, JoueurIA) and joueur_o.noeuds_explores > 0:
         print(f"STATS: {joueur_o.nom} a exploré {joueur_o.noeuds_explores} nœuds")
+    
+    # Afficher les statistiques finales et apprentissage
+    if isinstance(joueur_x, JoueurQLearning):
+        stats = joueur_x.obtenir_statistiques()
+        print(f"\nSTATS Q-LEARNING {joueur_x.nom}:")
+        print(f"  Table Q: {stats['taille_table_q']} états")
+        if joueur_x.mode_entrainement:
+            print(f"  Apprentissage en cours...")
+            joueur_x.apprendre(game, winner)
+            joueur_x.sauvegarder_table_q()
+            print(f"  Apprentissage termine et sauvegarde")
+            print(f"  Historique: {stats['parties']} parties, {stats['victoires']}V {stats['defaites']}D {stats['nuls']}N")
+    if isinstance(joueur_o, JoueurQLearning):
+        stats = joueur_o.obtenir_statistiques()
+        print(f"\nSTATS Q-LEARNING {joueur_o.nom}:")
+        print(f"  Table Q: {stats['taille_table_q']} états")
+        if joueur_o.mode_entrainement:
+            print(f"  Apprentissage en cours...")
+            joueur_o.apprendre(game, winner)
+            joueur_o.sauvegarder_table_q()
+            print(f"  Apprentissage termine et sauvegarde")
+            print(f"  Historique: {stats['parties']} parties, {stats['victoires']}V {stats['defaites']}D {stats['nuls']}N")
+    
+    # Afficher les statistiques Réseau de Neurones si applicable
+    if isinstance(joueur_x, JoueurReseauNeurones):
+        stats = joueur_x.obtenir_statistiques()
+        print(f"\nSTATS RÉSEAU NEURONES {joueur_x.nom}:")
+        print(f"  Parties: {stats['parties']}")
+        if joueur_x.mode_entrainement:
+            print(f"  Apprentissage en cours...")
+            joueur_x.apprendre(game, winner)
+            joueur_x.sauvegarder_reseau()
+            print(f"  Apprentissage termine et sauvegarde")
+            print(f"  Historique: {stats['parties']} parties, {stats['victoires']}V {stats['defaites']}D {stats['nuls']}N")
+            print(f"  Erreur moyenne: {stats['erreur_moyenne']:.4f}")
+    if isinstance(joueur_o, JoueurReseauNeurones):
+        stats = joueur_o.obtenir_statistiques()
+        print(f"\nSTATS RÉSEAU NEURONES {joueur_o.nom}:")
+        print(f"  Parties: {stats['parties']}")
+        if joueur_o.mode_entrainement:
+            print(f"  Apprentissage en cours...")
+            joueur_o.apprendre(game, winner)
+            joueur_o.sauvegarder_reseau()
+            print(f"  Apprentissage termine et sauvegarde")
+            print(f"  Historique: {stats['parties']} parties, {stats['victoires']}V {stats['defaites']}D {stats['nuls']}N")
+            print(f"  Erreur moyenne: {stats['erreur_moyenne']:.4f}")
     
     # Afficher les statistiques du cache si applicable
     if isinstance(joueur_x, JoueurIACache):

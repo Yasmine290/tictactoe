@@ -6,7 +6,7 @@ Utilise Tkinter pour l'interface et morpion_base pour la logique du jeu.
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 from morpion_base import TicTacToe
-from joueurs import JoueurHumain, JoueurIA, JoueurAleatoire, JoueurIACache
+from joueurs import JoueurHumain, JoueurIA, JoueurAleatoire, JoueurIACache, JoueurQLearning, JoueurReseauNeurones
 
 
 class PlayerSelectionDialog:
@@ -28,9 +28,9 @@ class PlayerSelectionDialog:
         
         # Centrer la fenêtre
         self.dialog.update_idletasks()
-        x = (self.dialog.winfo_screenwidth() // 2) - 150
-        y = (self.dialog.winfo_screenheight() // 2) - 120
-        self.dialog.geometry(f'320x240+{x}+{y}')
+        x = (self.dialog.winfo_screenwidth() // 2) - 160
+        y = (self.dialog.winfo_screenheight() // 2) - 160
+        self.dialog.geometry(f'320x320+{x}+{y}')
         
         self.setup_ui()
         
@@ -60,6 +60,8 @@ class PlayerSelectionDialog:
             ("Humain", "humain"),
             ("IA Minimax", "ia"),
             ("IA Cache", "ia_cache"),
+            ("IA Q-Learning", "qlearning"),
+            ("IA Réseau Neurones", "reseau"),
             ("Aléatoire", "aleatoire")
         ]
         for i, (text, value) in enumerate(x_options):
@@ -82,6 +84,8 @@ class PlayerSelectionDialog:
             ("Humain", "humain"),
             ("IA Minimax", "ia"),
             ("IA Cache", "ia_cache"),
+            ("IA Q-Learning", "qlearning"),
+            ("IA Réseau Neurones", "reseau"),
             ("Aléatoire", "aleatoire")
         ]
         for i, (text, value) in enumerate(o_options):
@@ -215,6 +219,22 @@ class TicTacToeGUI:
             command=self.start_new_game
         )
         new_game_btn.pack(pady=5)
+        
+        # Bouton Changer Joueurs
+        change_players_btn = tk.Button(
+            control_frame,
+            text="Changer Joueurs",
+            font=('Arial', 9),
+            bg='#3498db',
+            fg='white',
+            activebackground='#2980b9',
+            relief=tk.RAISED,
+            bd=2,
+            padx=15,
+            pady=6,
+            command=self.change_players
+        )
+        change_players_btn.pack(pady=5)
     
     def print_board_console(self, joueur_nom, row, col):
         """Affiche le plateau dans la console après un coup."""
@@ -269,7 +289,19 @@ class TicTacToeGUI:
         self.print_board_console(joueur_precedent.nom, row, col)
         
         # Afficher les statistiques après le coup
-        if isinstance(joueur_precedent, JoueurIA):
+        if isinstance(joueur_precedent, JoueurQLearning):
+            stats = joueur_precedent.obtenir_statistiques()
+            mode = "Entraînement" if joueur_precedent.mode_entrainement else "Jeu"
+            print(f"   → Q-Learning [{mode}]: {stats['taille_table_q']} états connus, "
+                  f"ε={joueur_precedent.epsilon:.2f}, "
+                  f"{joueur_precedent.temps_reflexion*1000:.3f}ms")
+        elif isinstance(joueur_precedent, JoueurReseauNeurones):
+            stats = joueur_precedent.obtenir_statistiques()
+            mode = "Entraînement" if joueur_precedent.mode_entrainement else "Jeu"
+            print(f"   → Réseau Neurones [{mode}]: {stats['parties']} parties jouées, "
+                  f"ε={joueur_precedent.epsilon:.2f}, "
+                  f"{joueur_precedent.temps_reflexion*1000:.3f}ms")
+        elif isinstance(joueur_precedent, JoueurIA):
             print(f"   → IA: {joueur_precedent.noeuds_explores} nœuds, "
                   f"{joueur_precedent.elagages} élagages, "
                   f"{joueur_precedent.temps_reflexion*1000:.3f}ms")
@@ -350,6 +382,78 @@ class TicTacToeGUI:
                 stats.append(f"{self.joueur_o.nom}: {self.joueur_o.noeuds_explores} nœuds explorés")
                 print(f"STATS: {self.joueur_o.nom} a exploré {self.joueur_o.noeuds_explores} nœuds")
             
+            # Ajouter les statistiques Q-Learning si applicable
+            if isinstance(self.joueur_x, JoueurQLearning):
+                if self.joueur_x.mode_entrainement:
+                    print(f"\nSTATS Q-LEARNING {self.joueur_x.nom}:")
+                    print(f"  Apprentissage en cours...")
+                    self.joueur_x.apprendre(self.game, winner)
+                    self.joueur_x.sauvegarder_table_q()
+                    print(f"  Apprentissage termine et sauvegarde")
+                    # Récupérer les stats APRÈS l'apprentissage
+                    stats_q = self.joueur_x.obtenir_statistiques()
+                    stats.append(f"{self.joueur_x.nom}: {stats_q['taille_table_q']} états")
+                    print(f"  Table Q: {stats_q['taille_table_q']} états")
+                    print(f"  Historique: {stats_q['parties']} parties, {stats_q['victoires']}V {stats_q['defaites']}D {stats_q['nuls']}N")
+                else:
+                    stats_q = self.joueur_x.obtenir_statistiques()
+                    stats.append(f"{self.joueur_x.nom}: {stats_q['taille_table_q']} états")
+                    print(f"\nSTATS Q-LEARNING {self.joueur_x.nom}:")
+                    print(f"  Table Q: {stats_q['taille_table_q']} états")
+            if isinstance(self.joueur_o, JoueurQLearning):
+                if self.joueur_o.mode_entrainement:
+                    print(f"\nSTATS Q-LEARNING {self.joueur_o.nom}:")
+                    print(f"  Apprentissage en cours...")
+                    self.joueur_o.apprendre(self.game, winner)
+                    self.joueur_o.sauvegarder_table_q()
+                    print(f"  Apprentissage termine et sauvegarde")
+                    # Récupérer les stats APRÈS l'apprentissage
+                    stats_q = self.joueur_o.obtenir_statistiques()
+                    stats.append(f"{self.joueur_o.nom}: {stats_q['taille_table_q']} états")
+                    print(f"  Table Q: {stats_q['taille_table_q']} états")
+                    print(f"  Historique: {stats_q['parties']} parties, {stats_q['victoires']}V {stats_q['defaites']}D {stats_q['nuls']}N")
+                else:
+                    stats_q = self.joueur_o.obtenir_statistiques()
+                    stats.append(f"{self.joueur_o.nom}: {stats_q['taille_table_q']} états")
+                    print(f"\nSTATS Q-LEARNING {self.joueur_o.nom}:")
+                    print(f"  Table Q: {stats_q['taille_table_q']} états")
+            
+            # Ajouter les statistiques Réseau de Neurones si applicable
+            if isinstance(self.joueur_x, JoueurReseauNeurones):
+                if self.joueur_x.mode_entrainement:
+                    print(f"\nSTATS RESEAU NEURONES {self.joueur_x.nom}:")
+                    print(f"  Apprentissage en cours...")
+                    self.joueur_x.apprendre(self.game, winner)
+                    self.joueur_x.sauvegarder_reseau()
+                    print(f"  Apprentissage termine et sauvegarde")
+                    # Récupérer les stats APRÈS l'apprentissage
+                    stats_rn = self.joueur_x.obtenir_statistiques()
+                    stats.append(f"{self.joueur_x.nom}: {stats_rn['parties']} parties")
+                    print(f"  Historique: {stats_rn['parties']} parties, {stats_rn['victoires']}V {stats_rn['defaites']}D {stats_rn['nuls']}N")
+                    print(f"  Erreur: {stats_rn['erreur_moyenne']:.4f}")
+                else:
+                    stats_rn = self.joueur_x.obtenir_statistiques()
+                    stats.append(f"{self.joueur_x.nom}: {stats_rn['parties']} parties")
+                    print(f"\nSTATS RÉSEAU NEURONES {self.joueur_x.nom}:")
+                    print(f"  Parties: {stats_rn['parties']}")
+            if isinstance(self.joueur_o, JoueurReseauNeurones):
+                if self.joueur_o.mode_entrainement:
+                    print(f"\nSTATS RESEAU NEURONES {self.joueur_o.nom}:")
+                    print(f"  Apprentissage en cours...")
+                    self.joueur_o.apprendre(self.game, winner)
+                    self.joueur_o.sauvegarder_reseau()
+                    print(f"  Apprentissage termine et sauvegarde")
+                    # Récupérer les stats APRÈS l'apprentissage
+                    stats_rn = self.joueur_o.obtenir_statistiques()
+                    stats.append(f"{self.joueur_o.nom}: {stats_rn['parties']} parties")
+                    print(f"  Historique: {stats_rn['parties']} parties, {stats_rn['victoires']}V {stats_rn['defaites']}D {stats_rn['nuls']}N")
+                    print(f"  Erreur: {stats_rn['erreur_moyenne']:.4f}")
+                else:
+                    stats_rn = self.joueur_o.obtenir_statistiques()
+                    stats.append(f"{self.joueur_o.nom}: {stats_rn['parties']} parties")
+                    print(f"\nSTATS RÉSEAU NEURONES {self.joueur_o.nom}:")
+                    print(f"  Parties: {stats_rn['parties']}")
+            
             # Ajouter les statistiques du cache si applicable
             if isinstance(self.joueur_x, JoueurIACache):
                 stats_cache = self.joueur_x.obtenir_statistiques()
@@ -379,8 +483,13 @@ class TicTacToeGUI:
         return False
     
     def start_new_game(self):
-        """Démarre une nouvelle partie avec sélection des joueurs."""
-        # Afficher la fenêtre de sélection
+        """Démarre une nouvelle partie - réutilise les joueurs existants ou en crée de nouveaux."""
+        # Si les joueurs existent déjà, juste réinitialiser la partie
+        if self.joueur_x is not None and self.joueur_o is not None:
+            self.reset_game()
+            return
+        
+        # Sinon, afficher la fenêtre de sélection
         dialog = PlayerSelectionDialog(self.root)
         result = dialog.show()
         
@@ -398,6 +507,22 @@ class TicTacToeGUI:
             self.joueur_x = JoueurIA('X', "IA X")
         elif type_x == "ia_cache":
             self.joueur_x = JoueurIACache('X', "IA Cache X")
+        elif type_x == "qlearning":
+            # Augmenter epsilon si joue contre humain (plus de variété)
+            epsilon = 0.35 if type_o == "humain" else 0.1
+            self.joueur_x = JoueurQLearning('X', "Q-Learning X", 
+                                           mode_entrainement=True, epsilon=epsilon)
+            print(f"\nQ-Learning X - Apprend en jouant (epsilon={epsilon})")
+            if type_o == "humain":
+                print(f"  Mode varié activé contre humain (35% d'exploration)")
+        elif type_x == "reseau":
+            # Augmenter epsilon si joue contre humain (plus de variété)
+            epsilon = 0.4 if type_o == "humain" else 0.2
+            self.joueur_x = JoueurReseauNeurones('X', "Réseau X", 
+                                                 mode_entrainement=True, epsilon=epsilon)
+            print(f"\nReseau de Neurones X - Apprentissage profond (epsilon={epsilon})")
+            if type_o == "humain":
+                print(f"  Mode varié activé contre humain (40% d'exploration)")
         else:
             self.joueur_x = JoueurAleatoire('X', "Aléatoire X")
         
@@ -407,6 +532,22 @@ class TicTacToeGUI:
             self.joueur_o = JoueurIA('O', "IA O")
         elif type_o == "ia_cache":
             self.joueur_o = JoueurIACache('O', "IA Cache O")
+        elif type_o == "qlearning":
+            # Augmenter epsilon si joue contre humain (plus de variété)
+            epsilon = 0.35 if type_x == "humain" else 0.1
+            self.joueur_o = JoueurQLearning('O', "Q-Learning O", 
+                                           mode_entrainement=True, epsilon=epsilon)
+            print(f"\nQ-Learning O - Apprend en jouant (epsilon={epsilon})")
+            if type_x == "humain":
+                print(f"  Mode varié activé contre humain (35% d'exploration)")
+        elif type_o == "reseau":
+            # Augmenter epsilon si joue contre humain (plus de variété)
+            epsilon = 0.4 if type_x == "humain" else 0.2
+            self.joueur_o = JoueurReseauNeurones('O', "Réseau O", 
+                                                 mode_entrainement=True, epsilon=epsilon)
+            print(f"\nReseau de Neurones O - Apprentissage profond (epsilon={epsilon})")
+            if type_x == "humain":
+                print(f"  Mode varié activé contre humain (40% d'exploration)")
         else:
             self.joueur_o = JoueurAleatoire('O', "Aléatoire O")
         
@@ -415,6 +556,14 @@ class TicTacToeGUI:
         print("="*50)
         
         self.reset_game()
+    
+    def change_players(self):
+        """Permet de changer les joueurs en cours de session."""
+        # Réinitialiser les joueurs pour forcer une nouvelle sélection
+        self.joueur_x = None
+        self.joueur_o = None
+        # Appeler start_new_game qui va demander de nouveaux joueurs
+        self.start_new_game()
     
     def reset_game(self):
         """Réinitialise le jeu pour une nouvelle partie."""

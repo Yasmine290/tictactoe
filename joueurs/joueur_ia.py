@@ -143,18 +143,18 @@ if __name__ == "__main__":
     jeu = TicTacToe()
     ia = JoueurIA('X', "Skynet")
     
-    print(f"\n✅ {ia} créé")
+    print(f"\n{ia} cree")
     print(f"Représentation: {repr(ia)}")
     
     print("\nPlateau actuel:")
     jeu.afficher_plateau()
     
-    print("\n🤖 L'IA réfléchit...")
+    print("\nL'IA reflechit...")
     coup = ia.obtenir_coup(jeu)
     stats = ia.obtenir_statistiques()
     
-    print(f"✅ Coup choisi: {coup}")
-    print(f"📊 Nœuds explorés: {stats['noeuds_explores']}")
+    print(f"Coup choisi: {coup}")
+    print(f"Noeuds explores: {stats['noeuds_explores']}")
     
     jeu.jouer_coup(coup[0], coup[1], ia.symbole)
     print("\nPlateau après le coup de l'IA:")

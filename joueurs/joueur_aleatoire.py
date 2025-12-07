@@ -69,29 +69,29 @@ if __name__ == "__main__":
     jeu = TicTacToe()
     joueur = JoueurAleatoire('O', "Robot Chaos")
     
-    print(f"\n✅ {joueur} créé")
+    print(f"\n{joueur} cree")
     print(f"Représentation: {repr(joueur)}")
     
     print("\nPlateau actuel:")
     jeu.afficher_plateau()
     
-    print("\n🎲 Le joueur aléatoire choisit un coup...")
+    print("\nLe joueur aleatoire choisit un coup...")
     coup = joueur.obtenir_coup(jeu)
     stats = joueur.obtenir_statistiques()
     
-    print(f"✅ Coup choisi: {coup}")
-    print(f"📊 Coups joués: {stats['coups_joues']}")
+    print(f"Coup choisi: {coup}")
+    print(f"Coups joues: {stats['coups_joues']}")
     
     jeu.jouer_coup(coup[0], coup[1], joueur.symbole)
     print("\nPlateau après le coup:")
     jeu.afficher_plateau()
     
     # Tester plusieurs coups
-    print("\n🎲 5 coups aléatoires supplémentaires:")
+    print("\n5 coups aleatoires supplementaires:")
     for i in range(5):
         coups_dispos = jeu.obtenir_coups_possibles()
         if coups_dispos:
             coup = joueur.obtenir_coup(jeu)
             print(f"  Coup {i+2}: {coup}")
     
-    print(f"\n📊 Total coups joués: {joueur.obtenir_statistiques()['coups_joues']}")
+    print(f"\nTotal coups joues: {joueur.obtenir_statistiques()['coups_joues']}")

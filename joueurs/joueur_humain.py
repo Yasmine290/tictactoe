@@ -46,7 +46,7 @@ class JoueurHumain(JoueurBase):
                 
                 # Permettre 'q' pour quitter
                 if entree.lower() == 'q':
-                    print("\n👋 Partie abandonnée.")
+                    print("\nPartie abandonnee.")
                     raise KeyboardInterrupt
                 
                 ligne, colonne = map(int, entree.split())
@@ -56,16 +56,16 @@ class JoueurHumain(JoueurBase):
                     if jeu.plateau[ligne][colonne] == TicTacToe.VIDE:
                         return (ligne, colonne)
                     else:
-                        print("❌ Cette case est déjà occupée!")
+                        print("Cette case est deja occupee!")
                 else:
-                    print("❌ Position invalide! Utilisez des nombres entre 0 et 2.")
+                    print("Position invalide! Utilisez des nombres entre 0 et 2.")
             
             except ValueError:
-                print("❌ Format invalide! Utilisez: ligne colonne (ex: 0 1)")
+                print("Format invalide! Utilisez: ligne colonne (ex: 0 1)")
             except KeyboardInterrupt:
                 raise
             except Exception as e:
-                print(f"❌ Erreur: {e}")
+                print(f"Erreur: {e}")
 
 
 # Test du module
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     jeu = TicTacToe()
     joueur = JoueurHumain('X', "Alice")
     
-    print(f"\n✅ {joueur} créé")
+    print(f"\n{joueur} cree")
     print(f"Représentation: {repr(joueur)}")
     
     print("\nPlateau actuel:")
@@ -85,6 +85,6 @@ if __name__ == "__main__":
     print("\nEntrez un coup (ou 'q' pour quitter):")
     try:
         coup = joueur.obtenir_coup(jeu)
-        print(f"✅ Coup choisi: {coup}")
+        print(f"Coup choisi: {coup}")
     except KeyboardInterrupt:
         print("\nTest interrompu")
