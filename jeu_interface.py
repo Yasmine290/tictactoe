@@ -140,6 +140,9 @@ class TicTacToeGUI:
         self.root.title("Tic-Tac-Toe")
         self.root.resizable(False, False)
         
+        # Sauvegarder avant de fermer
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        
         self.game = TicTacToe()
         self.buttons = [[None for _ in range(3)] for _ in range(3)]
         self.game_active = False
@@ -428,9 +431,15 @@ class TicTacToeGUI:
                     print(f"  Apprentissage termine et sauvegarde")
                     # Récupérer les stats APRÈS l'apprentissage
                     stats_rn = self.joueur_x.obtenir_statistiques()
-                    stats.append(f"{self.joueur_x.nom}: {stats_rn['parties']} parties")
+                    if stats_rn['erreur_moyenne'] is None:
+                        stats.append(f"{self.joueur_x.nom}: {stats_rn['parties']} parties (erreur N/A)")
+                    else:
+                        stats.append(f"{self.joueur_x.nom}: {stats_rn['parties']} parties (erreur {stats_rn['erreur_moyenne']:.4f})")
                     print(f"  Historique: {stats_rn['parties']} parties, {stats_rn['victoires']}V {stats_rn['defaites']}D {stats_rn['nuls']}N")
-                    print(f"  Erreur: {stats_rn['erreur_moyenne']:.4f}")
+                    if stats_rn['erreur_moyenne'] is None:
+                        print("  Erreur: N/A (pas encore calculée)")
+                    else:
+                        print(f"  Erreur: {stats_rn['erreur_moyenne']:.4f}")
                 else:
                     stats_rn = self.joueur_x.obtenir_statistiques()
                     stats.append(f"{self.joueur_x.nom}: {stats_rn['parties']} parties")
@@ -445,9 +454,15 @@ class TicTacToeGUI:
                     print(f"  Apprentissage termine et sauvegarde")
                     # Récupérer les stats APRÈS l'apprentissage
                     stats_rn = self.joueur_o.obtenir_statistiques()
-                    stats.append(f"{self.joueur_o.nom}: {stats_rn['parties']} parties")
+                    if stats_rn['erreur_moyenne'] is None:
+                        stats.append(f"{self.joueur_o.nom}: {stats_rn['parties']} parties (erreur N/A)")
+                    else:
+                        stats.append(f"{self.joueur_o.nom}: {stats_rn['parties']} parties (erreur {stats_rn['erreur_moyenne']:.4f})")
                     print(f"  Historique: {stats_rn['parties']} parties, {stats_rn['victoires']}V {stats_rn['defaites']}D {stats_rn['nuls']}N")
-                    print(f"  Erreur: {stats_rn['erreur_moyenne']:.4f}")
+                    if stats_rn['erreur_moyenne'] is None:
+                        print("  Erreur: N/A (pas encore calculée)")
+                    else:
+                        print(f"  Erreur: {stats_rn['erreur_moyenne']:.4f}")
                 else:
                     stats_rn = self.joueur_o.obtenir_statistiques()
                     stats.append(f"{self.joueur_o.nom}: {stats_rn['parties']} parties")
@@ -600,6 +615,19 @@ class TicTacToeGUI:
             self.info_label.config(text=f"{self.joueur_actuel.nom} réfléchit...")
             self.root.update()
             self.root.after(500, self.auto_move)
+    
+    def on_closing(self):
+        """Appelé lors de la fermeture de la fenêtre."""
+        # Sauvegarder les agents Q-Learning et Réseau de Neurones
+        if isinstance(self.joueur_x, (JoueurQLearning, JoueurReseauNeurones)):
+            self.joueur_x.sauvegarder_table_q() if isinstance(self.joueur_x, JoueurQLearning) else self.joueur_x.sauvegarder_reseau()
+            print(f"[Sauvegarde] {self.joueur_x.nom} sauvegardé")
+        
+        if isinstance(self.joueur_o, (JoueurQLearning, JoueurReseauNeurones)):
+            self.joueur_o.sauvegarder_table_q() if isinstance(self.joueur_o, JoueurQLearning) else self.joueur_o.sauvegarder_reseau()
+            print(f"[Sauvegarde] {self.joueur_o.nom} sauvegardé")
+        
+        self.root.destroy()
 
 
 def main():

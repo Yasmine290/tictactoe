@@ -216,7 +216,3 @@ python jeu_console.py
 # Visualiser la progression
 python visualisation_apprentissage.py
 ```
-
----
-
-** Vous avez maintenant un vrai agent avec apprentissage par renforcement !**

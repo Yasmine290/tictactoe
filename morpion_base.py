@@ -1,5 +1,5 @@
 """
-Module principal pour le jeu de Tic-Tac-Toe avec IA utilisant l'algorithme Minimax.
+Module principal pour le jeu de Tic-Tac-Toe avec IA 
 Ce module contient toute la logique du jeu et peut être utilisé par différentes interfaces.
 """
 

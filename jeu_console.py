@@ -149,7 +149,7 @@ def display_result(winner: str):
 
 
 def play_game():
-    """Fonction principale pour jouer une partie."""
+    """Fonction principale pour jouer une partie. Retourne les joueurs."""
     game = TicTacToe()
     print_instructions()
     
@@ -263,18 +263,32 @@ def play_game():
         stats = joueur_o.obtenir_statistiques()
         print(f"STATS CACHE {joueur_o.nom}: {stats['noeuds_explores']} nœuds, "
               f"{stats['hits_cache']} hits, {stats['taux_hit']:.1f}% efficacité")
+    
+    return joueur_x, joueur_o
 
 
 def main():
     """Point d'entrée principal du programme."""
-    while True:
-        play_game()
-        
-        # Demander si le joueur veut rejouer
-        replay = input("Voulez-vous rejouer? (o/n): ").strip().lower()
-        if replay not in ['o', 'oui', 'y', 'yes']:
-            print("\nMerci d'avoir joué! Au revoir!\n")
-            break
+    joueur_x = None
+    joueur_o = None
+    
+    try:
+        while True:
+            joueur_x, joueur_o = play_game()
+            
+            # Demander si le joueur veut rejouer
+            replay = input("Voulez-vous rejouer? (o/n): ").strip().lower()
+            if replay not in ['o', 'oui', 'y', 'yes']:
+                print("\nMerci d'avoir joué! Au revoir!\n")
+                break
+    finally:
+        # Sauvegarder avant de quitter
+        if joueur_x and isinstance(joueur_x, JoueurQLearning):
+            joueur_x.sauvegarder_table_q()
+            print(f"[Sauvegarde finale] {joueur_x.nom} sauvegardé")
+        if joueur_o and isinstance(joueur_o, JoueurQLearning):
+            joueur_o.sauvegarder_table_q()
+            print(f"[Sauvegarde finale] {joueur_o.nom} sauvegardé")
 
 
 if __name__ == "__main__":

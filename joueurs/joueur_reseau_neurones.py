@@ -322,10 +322,8 @@ class JoueurReseauNeurones(JoueurBase):
         self.epsilon = epsilon
         self.mode_entrainement = mode_entrainement
         
-        # Fichier de sauvegarde partagé pour X et O
-        # Important: Les deux joueurs utilisent le même fichier pour un apprentissage commun
-        # Cela permet au réseau d'apprendre à jouer des deux côtés
-        self.fichier_sauvegarde = fichier_sauvegarde if fichier_sauvegarde else "reseau_neurones.pkl"
+        # Fichier de sauvegarde: par défaut un fichier distinct par symbole pour éviter l'écrasement
+        self.fichier_sauvegarde = fichier_sauvegarde if fichier_sauvegarde else f"reseau_neurones_{symbole}.pkl"
         
         # Historique pour l'apprentissage
         # Stocke tous les (état_plateau, coup_joué) de la partie en cours
